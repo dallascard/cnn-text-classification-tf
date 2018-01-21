@@ -66,7 +66,7 @@ vocab_dict = vocab_processor.vocabulary_._mapping
 vocab_size = len(vocab_dict)
 
 # get the vocabulary sorted by index
-vocab = [w for w in sorted(vocab_dict.items(), key=lambda x: x[1])]
+vocab = [w[0] for w in sorted(vocab_dict.items(), key=lambda x: x[1])]
 
 # save if to disk
 fh.write_to_json(vocab, 'vocab.json')
