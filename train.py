@@ -1,13 +1,15 @@
 #! /usr/bin/env python
-
-import tensorflow as tf
-import numpy as np
 import os
 import time
 import datetime
+
+import gensim
+import numpy as np
+import tensorflow as tf
+from tensorflow.contrib import learn
+
 import data_helpers
 from text_cnn import TextCNN
-from tensorflow.contrib import learn
 
 # Parameters
 # ==================================================
@@ -34,6 +36,8 @@ tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (d
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on devices")
 
+tf.flags.DEFINE_string("word2vec_file", "", ".bin file with word2vec embeddings (default=None).")
+
 FLAGS = tf.flags.FLAGS
 FLAGS._parse_flags()
 print("\nParameters:")
@@ -53,6 +57,27 @@ x_text, y = data_helpers.load_data_and_labels(FLAGS.positive_data_file, FLAGS.ne
 max_document_length = max([len(x.split(" ")) for x in x_text])
 vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 x = np.array(list(vocab_processor.fit_transform(x_text)))
+
+print(x.shape)
+print(x[100, :])
+
+vocab_dict = vocab_processor.vocabulary_._mapping
+vocab_size = len(vocab_dict)
+
+print('this', vocab_dict['this'])
+
+# create word vector matrix with random vectors in [-1, 1]
+embeddings = np.random.rand(vocab_size, 300) * 2 - 1.0
+
+# load pretrained word vectors
+if len(FLAGS.word2vec_file) > 0:
+    print("Loading word vectors")
+    pretrained = gensim.models.KeyedVectors.load_word2vec_format(FLAGS.word2vec_file, binary=True)
+    print(pretrained.shape)
+
+    for word, index in vocab_dict.items():
+        if word in pretrained:
+            embeddings[index, :] = pretrained[word]
 
 # Randomly shuffle data
 np.random.seed(10)
@@ -145,7 +170,8 @@ with tf.Graph().as_default():
             feed_dict = {
               cnn.input_x: x_batch,
               cnn.input_y: y_batch,
-              cnn.dropout_keep_prob: FLAGS.dropout_keep_prob
+              cnn.dropout_keep_prob: FLAGS.dropout_keep_prob,
+              cnn.embedding_init: embeddings
             }
             _, step, summaries, loss, accuracy = sess.run(
                 [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
