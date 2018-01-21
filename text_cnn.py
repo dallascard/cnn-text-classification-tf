@@ -51,7 +51,7 @@ class TextCNN(object):
                     strides=[1, 1, 1, 1],
                     padding="VALID",
                     name="conv")
-                conv = tf.nn.conv1d(self.embedded_words_expanded, )
+                #conv = tf.nn.conv1d(self.embedded_words_expanded, )
 
                 # Apply nonlinearity
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
