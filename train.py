@@ -10,6 +10,7 @@ from tensorflow.contrib import learn
 
 import data_helpers
 from text_cnn import TextCNN
+import file_handling as fh
 
 # Parameters
 # ==================================================
@@ -64,7 +65,11 @@ print(x[100, :])
 vocab_dict = vocab_processor.vocabulary_._mapping
 vocab_size = len(vocab_dict)
 
-print('this', vocab_dict['this'])
+# get the vocabulary sorted by index
+vocab = [w for w in sorted(vocab_dict.items(), key=lambda x: x[1])]
+
+# save if to disk
+fh.write_to_json(vocab, 'vocab.json')
 
 # create word vector matrix with random vectors in [-1, 1]
 embeddings = np.random.rand(vocab_size, 300) * 2 - 1.0
@@ -73,11 +78,15 @@ embeddings = np.random.rand(vocab_size, 300) * 2 - 1.0
 if len(FLAGS.word2vec_file) > 0:
     print("Loading word vectors")
     pretrained = gensim.models.KeyedVectors.load_word2vec_format(FLAGS.word2vec_file, binary=True)
-    print(pretrained.shape)
+    print(len(pretrained))
 
     for word, index in vocab_dict.items():
         if word in pretrained:
             embeddings[index, :] = pretrained[word]
+
+    print("Saving embedding matrix")
+    np.savez('embeddings.npz', W=embeddings)
+
 
 # Randomly shuffle data
 np.random.seed(10)

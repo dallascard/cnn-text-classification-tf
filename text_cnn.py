@@ -44,12 +44,15 @@ class TextCNN(object):
                 filter_shape = [filter_size, embedding_size, 1, num_filters]
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[num_filters]), name="b")
+
                 conv = tf.nn.conv2d(
                     self.embedded_words_expanded,
                     W,
                     strides=[1, 1, 1, 1],
                     padding="VALID",
                     name="conv")
+                conv = tf.nn.conv1d(self.embedded_words_expanded, )
+
                 # Apply nonlinearity
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
                 # Maxpooling over the outputs
