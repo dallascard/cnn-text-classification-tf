@@ -78,7 +78,6 @@ embeddings = np.random.rand(vocab_size, 300) * 2 - 1.0
 if len(FLAGS.word2vec_file) > 0:
     print("Loading word vectors")
     pretrained = gensim.models.KeyedVectors.load_word2vec_format(FLAGS.word2vec_file, binary=True)
-    print(len(pretrained))
 
     for word, index in vocab_dict.items():
         if word in pretrained:
