@@ -9,7 +9,7 @@ class TextCNN(object):
     """
     def __init__(
       self, sequence_length, num_classes, vocab_size,
-      embedding_size, filter_sizes, num_filters, l2_reg_lambda=0.0, init_embeddings=None):
+      embedding_size, filter_sizes, num_filters, l2_reg_lambda=0.0):
 
         # Placeholders for input, output and dropout
         self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
@@ -24,13 +24,15 @@ class TextCNN(object):
             # create a matrix of embeddings
             #self.W = tf.Variable(tf.constant(0.0, shape=[vocab_size, embedding_size]), trainable=False, name="W")
 
-            self.W = tf.get_variable(name="W", shape=[vocab_size, embedding_size], initializer=tf.constant_initializer(init_embeddings), trainable=False)
+            #self.W = tf.get_variable(name="W", shape=[vocab_size, embedding_size], initializer=tf.constant_initializer(init_embeddings), trainable=False)
 
             # create a placeholder variable to receive the initialization values for embeddings
             #self.embedding_placeholder = tf.placeholder(tf.float32, [vocab_size, embedding_size])
 
             # assign the placeholder values to W
             #self.embedding_init = self.W.assign(self.embedding_placeholder)
+
+            self.W = tf.Variable(tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0), name="W")
 
             # convert words to embeddings
             self.embedded_words = tf.nn.embedding_lookup(self.W, self.input_x)

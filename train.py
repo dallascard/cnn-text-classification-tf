@@ -75,14 +75,17 @@ fh.write_to_json(vocab, 'vocab.json')
 embeddings = np.array(np.random.rand(vocab_size, 300) * 2 - 1.0, dtype=np.float32)
 
 # load pretrained word vectors
+count = 0
 if len(FLAGS.word2vec_file) > 0:
     print("Loading word vectors")
     pretrained = gensim.models.KeyedVectors.load_word2vec_format(FLAGS.word2vec_file, binary=True)
 
     for word, index in vocab_dict.items():
         if word in pretrained:
+            count += 1
             embeddings[index, :] = pretrained[word]
 
+    print("Found embeddings for %d words" % count)
     print("Saving embedding matrix")
     np.savez('embeddings.npz', W=embeddings)
 
@@ -121,8 +124,7 @@ with tf.Graph().as_default():
             embedding_size=FLAGS.embedding_dim,
             filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
             num_filters=FLAGS.num_filters,
-            l2_reg_lambda=FLAGS.l2_reg_lambda,
-            init_embeddings=embeddings)
+            l2_reg_lambda=FLAGS.l2_reg_lambda)
 
         # Define Training procedure
         global_step = tf.Variable(0, name="global_step", trainable=False)
@@ -171,6 +173,7 @@ with tf.Graph().as_default():
 
         # Initialize all variables
         sess.run(tf.global_variables_initializer())
+        sess.run(cnn.W.assign(embeddings))
 
         def train_step(x_batch, y_batch):
             """
