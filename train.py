@@ -72,7 +72,7 @@ vocab = [w[0] for w in sorted(vocab_dict.items(), key=lambda x: x[1])]
 fh.write_to_json(vocab, 'vocab.json')
 
 # create word vector matrix with random vectors in [-1, 1]
-embeddings = np.random.rand(vocab_size, 300) * 2 - 1.0
+embeddings = np.array(np.random.rand(vocab_size, 300) * 2 - 1.0, dtype=np.float32)
 
 # load pretrained word vectors
 if len(FLAGS.word2vec_file) > 0:
@@ -121,7 +121,8 @@ with tf.Graph().as_default():
             embedding_size=FLAGS.embedding_dim,
             filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
             num_filters=FLAGS.num_filters,
-            l2_reg_lambda=FLAGS.l2_reg_lambda)
+            l2_reg_lambda=FLAGS.l2_reg_lambda,
+            init_embeddings=embeddings)
 
         # Define Training procedure
         global_step = tf.Variable(0, name="global_step", trainable=False)
@@ -178,8 +179,7 @@ with tf.Graph().as_default():
             feed_dict = {
               cnn.input_x: x_batch,
               cnn.input_y: y_batch,
-              cnn.dropout_keep_prob: FLAGS.dropout_keep_prob,
-              cnn.embedding_init: embeddings
+              cnn.dropout_keep_prob: FLAGS.dropout_keep_prob
             }
             _, step, summaries, loss, accuracy = sess.run(
                 [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
