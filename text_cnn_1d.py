@@ -8,8 +8,8 @@ class TextCNN(object):
     Uses an embedding layer, followed by a convolutional, max-pooling and softmax layer.
     """
     def __init__(
-      self, sequence_length, num_classes, vocab_size,
-      embedding_size, filter_sizes, num_filters, l2_reg_lambda=0.0):
+            self, sequence_length, num_classes, vocab_size,
+            embedding_size, filter_sizes, num_filters, l2_reg_lambda=0.0):
 
         # Placeholders for input, output and dropout
         self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
@@ -50,13 +50,14 @@ class TextCNN(object):
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[num_filters]), name="b")
 
-                conv = tf.nn.conv2d(
-                    self.embedded_words_expanded,
-                    W,
-                    strides=[1, 1, 1, 1],
-                    padding="VALID",
-                    name="conv")
-                #conv = tf.nn.conv1d(self.embedded_words_expanded, )
+                #conv = tf.nn.conv2d(
+                #    self.embedded_words_expanded,
+                #    W,
+                #    strides=[1, 1, 1, 1],
+                #    padding="VALID",
+                #    name="conv")
+
+                conv = tf.nn.conv1d(self.embedded_words_expanded, W)
 
                 # Apply nonlinearity
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
