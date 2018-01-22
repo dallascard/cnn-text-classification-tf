@@ -72,7 +72,7 @@ vocab = [w[0] for w in sorted(vocab_dict.items(), key=lambda x: x[1])]
 fh.write_to_json(vocab, 'vocab.json')
 
 # create word vector matrix with random vectors in [-1, 1]
-embeddings = np.array(np.random.rand(vocab_size, 300) * 2 - 1.0, dtype=np.float32)
+embeddings = np.array(np.random.rand(vocab_size, 300) * 0.25 - 0.5, dtype=np.float32)
 
 # load pretrained word vectors
 count = 0

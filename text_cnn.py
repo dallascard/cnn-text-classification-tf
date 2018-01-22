@@ -32,7 +32,7 @@ class TextCNN(object):
             # assign the placeholder values to W
             #self.embedding_init = self.W.assign(self.embedding_placeholder)
 
-            self.W = tf.Variable(tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0), name="W")
+            self.W = tf.Variable(tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0), name="W", trainable=False)
 
             # convert words to embeddings
             self.embedded_words = tf.nn.embedding_lookup(self.W, self.input_x)
